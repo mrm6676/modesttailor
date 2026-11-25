@@ -1,0 +1,156 @@
+<resources>
+    <string name="app_name">Modest Tailor</string>
+
+    <!-- Auth Screen -->
+    <string name="auth_brand_subtitle">Bespoke Modest Styling for Ladies &amp; Girls</string>
+    <string name="auth_headline">Trend-Forward Elegance, Tailored to Your Coverage</string>
+    <string name="auth_body">Pair your personal modesty guidelines and current runway silhouettes with real pieces from local boutiques and your wardrobe.</string>
+    <string name="auth_tab_sign_in">Sign In</string>
+    <string name="auth_tab_sign_up">Create Account</string>
+    <string name="auth_login_subtitle">Welcome back to your synced modest wardrobe, boutique stock, and pinned lookbook.</string>
+    <string name="auth_signup_subtitle">Create your Modest Tailor profile in one tap with Google and customize your starter coverage focus.</string>
+    <string name="auth_signup_focus_label">Who are you styling for?</string>
+    <string name="auth_signup_hijab_toggle">Include coordinated hijab &amp; headscarf styling</string>
+    <string name="auth_sign_in_google">Sign in with Google</string>
+    <string name="auth_sign_up_google">Sign up with Google</string>
+    <string name="auth_provider_badge">Secured with Firebase Auth &amp; Google Sign-In</string>
+    <string name="auth_provider_note">Google is our primary identity provider — sign in or create your encrypted atelier profile without another password.</string>
+    <string name="auth_switch_to_signup">New to Modest Tailor? Create an account</string>
+    <string name="auth_switch_to_signin">Already have an account? Sign in</string>
+    <string name="auth_checking_session">Checking for your Google session…</string>
+    <string name="auth_feature_ladies_girls">Ladies, Teens &amp; Girls Sizing</string>
+    <string name="auth_feature_coverage">Verified Neckline, Sleeve &amp; Hem Coverage</string>
+    <string name="auth_feature_local">Local Boutique &amp; Closet Inventory Sync</string>
+    <string name="auth_continue_guest">Continue Browsing</string>
+    <string name="auth_skip_for_now">Maybe later — keep browsing Studio</string>
+
+    <!-- Navigation Destinations -->
+    <string name="nav_atelier">Stylist</string>
+    <string name="nav_boutique">Inventory</string>
+    <string name="nav_lookbook">My Closet</string>
+    <string name="nav_profile">Modesty</string>
+
+    <!-- Stylist / Atelier Screen -->
+    <string name="atelier_header_title">Modest Tailor Studio</string>
+    <string name="atelier_header_subtitle">Curated looks from your local inventory &amp; coverage rules</string>
+    <string name="atelier_sign_in_chip">Sign In</string>
+    <string name="cd_sign_in_account">Sign in with Google to sync your closet and preferences</string>
+    <string name="atelier_daily_badge">Today\'s Daily AI Edit</string>
+    <string name="atelier_daily_loading">Curating today\'s personalized modest outfits from your stored preferences…</string>
+    <string name="atelier_daily_refresh_cd">Refresh today\'s personalized outfits</string>
+    <string name="cd_thumbs_up_outfit">Like this daily outfit recommendation</string>
+    <string name="cd_thumbs_down_outfit">Dislike this daily outfit recommendation</string>
+    <string name="atelier_feedback_liked_hint">Liked • Future AI looks will lean into this style</string>
+    <string name="atelier_feedback_disliked_hint">Not for me • Future AI looks will steer differently</string>
+    <string name="atelier_feedback_prompt">Rate look for AI:</string>
+    <string name="atelier_custom_section_title">Custom Occasion &amp; Season Stylist</string>
+    <string name="atelier_occasion_label">Occasion &amp; Setting</string>
+    <string name="atelier_season_label">Season &amp; Climate</string>
+    <string name="atelier_prompt_label">Custom Styling Note (Optional)</string>
+    <string name="atelier_prompt_hint">e.g. Coordinated mother &amp; daughter pastel look for a garden brunch</string>
+    <string name="atelier_generate_cta">Tailor Personalized Outfits</string>
+    <string name="atelier_generating_status">Weaving modest silhouettes &amp; checking local stock…</string>
+    <string name="atelier_save_look">Save to Closet</string>
+    <string name="atelier_saving_look">Saving to Closet…</string>
+    <string name="atelier_saved_badge">Saved to Closet</string>
+    <string name="atelier_view_closet">My Closet</string>
+    <string name="atelier_share_look">Share</string>
+    <string name="atelier_share_chooser_title">Share Modest Outfit</string>
+    <string name="cd_share_outfit">Share outfit card and deep link</string>
+    <string name="atelier_empty_inventory_banner">Load local boutique pieces or add garments in Inventory so Tailor AI can match real stock.</string>
+    <string name="atelier_seed_starter_cta">Load Local Boutique Collection</string>
+    <string name="atelier_masthead_eyebrow">BESPOKE MODEST ATELIER</string>
+    <string name="atelier_charter_title">Active Charter &amp; Fit</string>
+    <string name="atelier_charter_edit">Edit Charter</string>
+    <string name="atelier_quick_capsules_title">Editorial Capsule Starters</string>
+    <string name="atelier_capsule_ladies_title">Ladies Atelier Edit</string>
+    <string name="atelier_capsule_ladies_sub">Silk pleats, longline trenches &amp; workwear</string>
+    <string name="atelier_capsule_girls_title">Girls &amp; Teens Capsule</string>
+    <string name="atelier_capsule_girls_sub">Breathable cotton tiers &amp; modest denim</string>
+    <string name="atelier_composer_eyebrow">BESPOKE COMMISSION</string>
+    <string name="atelier_nav_inventory_pill">Local Rack</string>
+    <string name="atelier_nav_closet_pill">Saved Looks</string>
+    <string name="atelier_quick_actions_title">Quick Actions</string>
+    <string name="quick_action_daily">View Daily Recommendation</string>
+    <string name="quick_action_daily_sub">Today\'s AI lookbook</string>
+    <string name="quick_action_closet">Explore My Closet</string>
+    <string name="quick_action_preferences">Update Preferences</string>
+    <string name="quick_action_preferences_sub">Sizes &amp; modesty</string>
+
+    <!-- Boutique / Local Inventory Screen -->
+    <string name="inventory_title">Local Boutique &amp; Closet</string>
+    <string name="inventory_subtitle">Manage local racks &amp; personal pieces available for styling</string>
+    <string name="inventory_add_item">Add Piece</string>
+    <string name="inventory_scan_photo">Analyze Garment Photo</string>
+    <string name="inventory_scanning_photo">Analyzing modest coverage &amp; silhouette…</string>
+    <string name="inventory_empty_title">Your Local Rack is Empty</string>
+    <string name="inventory_empty_body">Add pieces from neighborhood boutiques or load a starter Ladies &amp; Girls modest collection to start styling.</string>
+    <string name="inventory_in_stock">In Stock</string>
+    <string name="inventory_out_of_stock">Out of Stock</string>
+    <string name="inventory_filter_all">All</string>
+    <string name="inventory_filter_ladies">Ladies</string>
+    <string name="inventory_filter_girls">Girls</string>
+    <string name="inventory_filter_teens">Teens</string>
+
+    <!-- My Closet Screen -->
+    <string name="lookbook_title">My Closet</string>
+    <string name="lookbook_subtitle">Bookmarked outfit ensembles synced live from Firestore</string>
+    <string name="lookbook_subtitle_guest">Session closet bookmarks — sign in anytime to sync with Firestore</string>
+    <string name="closet_guest_sync_title">Browsing without an account</string>
+    <string name="closet_guest_sync_body">Your bookmarks stay in this session. Sign in with Google anytime to save across devices.</string>
+    <string name="lookbook_empty_title">Your Closet is Empty</string>
+    <string name="lookbook_empty_body">Tap \"Save to Closet\" on any Tailor AI outfit recommendation to bookmark it to your grid.</string>
+    <string name="my_closet_explore_stylist">Explore Stylist Studio</string>
+    <string name="closet_search_placeholder">Search by tag (summer, formal, work) or piece…</string>
+    <string name="closet_quick_tags_label">Quick Style Tags</string>
+    <string name="closet_clear_filters">Clear Filters</string>
+
+    <!-- Style & Modesty Multi-Step Form Screen -->
+    <string name="profile_title">Style &amp; Coverage Wizard</string>
+    <string name="profile_subtitle">Complete each step to store your style, palette, and modesty rules in Firestore</string>
+    <string name="profile_subtitle_guest">Customize your clothing sizes, palette, and modesty rules now — sign in later to cloud sync</string>
+    <string name="profile_step_identity">Profile</string>
+    <string name="profile_step_coverage">Coverage</string>
+    <string name="profile_step_palette">Style &amp; Color</string>
+    <string name="profile_step_review">Review</string>
+    <string name="profile_step_next">Next Step</string>
+    <string name="profile_step_back">Previous</string>
+    <string name="profile_save_cta">Save Preferences to Cloud</string>
+    <string name="profile_save_cta_guest">Apply Sizes &amp; Preferences</string>
+    <string name="profile_saving_cta">Saving to Firestore…</string>
+    <string name="profile_go_stylist_cta">Open Stylist Studio</string>
+    <string name="profile_sign_out">Sign Out</string>
+    <string name="profile_sign_in_cta">Sign in with Google to Sync</string>
+    <string name="profile_hijab_label">Include Coordinated Hijab / Headscarf Styling</string>
+    <string name="profile_hijab_desc">Suggests complementary opaque shawls, wraps, or hair accessories</string>
+    <string name="profile_sizes_title">Clothing Sizes &amp; Boutique Fit</string>
+    <string name="profile_sizes_subtitle">Save your garment sizes so Tailor AI filters local boutique stock that actually fits</string>
+    <string name="profile_sizes_top_label">Tops &amp; Outerwear Size</string>
+    <string name="profile_sizes_bottom_label">Bottoms &amp; Skirts Size</string>
+    <string name="profile_sizes_length_label">Abaya &amp; Maxi Dress Length (Inches)</string>
+    <string name="profile_sizes_girls_label">Girls &amp; Teens Size</string>
+    <string name="profile_sizes_save_cta">Save Clothing Sizes</string>
+    <string name="cd_clothing_sizes">Clothing sizes and boutique fit measurements</string>
+
+    <!-- Dialog / Form Labels -->
+    <string name="form_garment_name">Garment Name</string>
+    <string name="form_boutique_name">Local Boutique or Closet</string>
+    <string name="form_neighborhood">District / City</string>
+    <string name="form_price">Price (USD, 0 for Closet)</string>
+    <string name="form_color">Color / Tone</string>
+    <string name="form_size_range">Sizes Available</string>
+    <string name="form_coverage_summary">Modest Coverage Details</string>
+    <string name="form_trend_tag">Current Trend Tag</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save Item</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_retry">Try Again</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_hero_banner">Contemporary modest fashion atelier mannequins</string>
+    <string name="cd_ladies_card">Ladies modest collection preview</string>
+    <string name="cd_girls_card">Girls modest collection preview</string>
+    <string name="cd_favorite_toggle">Toggle favorite ensemble</string>
+    <string name="cd_delete_item">Delete item</string>
+    <string name="cd_sign_out">Sign out of account</string>
+</resources>

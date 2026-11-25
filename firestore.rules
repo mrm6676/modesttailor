@@ -1,0 +1,299 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isBoundedStringList(arr, maxLen) {
+      return arr is list && arr.size() <= maxLen && (arr.size() == 0 || (arr[0] is string && arr[0].size() <= 160));
+    }
+
+    function isOptionalValidSizeField(data, fieldName) {
+      return !(fieldName in data) || (data[fieldName] is string && data[fieldName].size() >= 1 && data[fieldName].size() <= 24);
+    }
+
+    // 1. StyleProfile Validation (/users/{userId})
+    function isValidStyleProfile(data, pathUserId) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.userId == pathUserId &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80 &&
+             data.audience is string && data.audience in ['Ladies', 'Girls', 'Teens', 'Ladies & Girls'] &&
+             data.necklineRule is string && data.necklineRule.size() >= 1 && data.necklineRule.size() <= 60 &&
+             data.sleeveRule is string && data.sleeveRule.size() >= 1 && data.sleeveRule.size() <= 60 &&
+             data.hemlineRule is string && data.hemlineRule.size() >= 1 && data.hemlineRule.size() <= 60 &&
+             data.fitRule is string && data.fitRule.size() >= 1 && data.fitRule.size() <= 60 &&
+             data.hijabFriendly is bool &&
+             data.cityOrArea is string && data.cityOrArea.size() <= 80 &&
+             isBoundedStringList(data.trendTags, 10) &&
+             isBoundedStringList(data.favoriteColors, 10) &&
+             isOptionalValidSizeField(data, 'topSize') &&
+             isOptionalValidSizeField(data, 'bottomSize') &&
+             isOptionalValidSizeField(data, 'dressAbayaLength') &&
+             isOptionalValidSizeField(data, 'girlsSize') &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 2. InventoryItem Validation (/users/{userId}/inventory/{itemId})
+    function isValidInventoryItem(data, pathUserId) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.userId == pathUserId &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.category is string && data.category in ['Top', 'Bottom', 'Dress & Abaya', 'Outerwear', 'Headwear & Accessory', 'Set & Co-ord'] &&
+             data.audience is string && data.audience in ['Ladies', 'Girls', 'Teens'] &&
+             data.boutiqueName is string && data.boutiqueName.size() >= 1 && data.boutiqueName.size() <= 80 &&
+             data.neighborhood is string && data.neighborhood.size() <= 80 &&
+             (data.priceUsd is int || data.priceUsd is float) && data.priceUsd >= 0 && data.priceUsd <= 50000 &&
+             data.color is string && data.color.size() >= 1 && data.color.size() <= 50 &&
+             data.sizeRange is string && data.sizeRange.size() >= 1 && data.sizeRange.size() <= 60 &&
+             data.coverageSummary is string && data.coverageSummary.size() >= 1 && data.coverageSummary.size() <= 240 &&
+             data.trendTag is string && data.trendTag.size() >= 1 && data.trendTag.size() <= 60 &&
+             data.inStock is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 3. SavedOutfit Validation (/users/{userId}/saved_outfits/{outfitId})
+    function isValidSavedOutfit(data, pathUserId) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.userId == pathUserId &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.audience is string && data.audience in ['Ladies', 'Girls', 'Teens', 'Ladies & Girls'] &&
+             data.occasion is string && data.occasion.size() >= 1 && data.occasion.size() <= 80 &&
+             data.trendHighlight is string && data.trendHighlight.size() >= 1 && data.trendHighlight.size() <= 240 &&
+             data.coverageVerification is string && data.coverageVerification.size() >= 1 && data.coverageVerification.size() <= 400 &&
+             data.stylingNotes is string && data.stylingNotes.size() >= 1 && data.stylingNotes.size() <= 600 &&
+             isBoundedStringList(data.matchedPieces, 12) &&
+             isBoundedStringList(data.boutiqueSources, 12) &&
+             data.favorite is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 4. OutfitFeedback Validation (/users/{userId}/outfit_feedback/{feedbackId})
+    function isValidOutfitFeedback(data, pathUserId) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.userId == pathUserId &&
+             data.outfitTitle is string && data.outfitTitle.size() >= 1 && data.outfitTitle.size() <= 120 &&
+             data.vote is string && data.vote in ['UP', 'DOWN'] &&
+             data.dateKey is string && data.dateKey.size() >= 1 && data.dateKey.size() <= 20 &&
+             data.audience is string && data.audience in ['Ladies', 'Girls', 'Teens', 'Ladies & Girls'] &&
+             data.occasion is string && data.occasion.size() <= 80 &&
+             data.trendHighlight is string && data.trendHighlight.size() <= 240 &&
+             isBoundedStringList(data.matchedPieces, 12) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'audience', 'necklineRule', 'sleeveRule',
+                         'hemlineRule', 'fitRule', 'hijabFriendly', 'cityOrArea',
+                         'trendTags', 'favoriteColors', 'topSize', 'bottomSize',
+                         'dressAbayaLength', 'girlsSize', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'audience', 'necklineRule', 'sleeveRule',
+                         'hemlineRule', 'fitRule', 'hijabFriendly', 'cityOrArea',
+                         'trendTags', 'favoriteColors', 'topSize', 'bottomSize',
+                         'dressAbayaLength', 'girlsSize', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidStyleProfile(incoming(), userId);
+
+      allow update: if isSignedIn() &&
+                       resource != null &&
+                       request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       isValidStyleProfile(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'audience', 'necklineRule', 'sleeveRule',
+                         'hemlineRule', 'fitRule', 'hijabFriendly', 'cityOrArea',
+                         'trendTags', 'favoriteColors', 'topSize', 'bottomSize',
+                         'dressAbayaLength', 'girlsSize', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'audience', 'necklineRule', 'sleeveRule',
+                         'hemlineRule', 'fitRule', 'hijabFriendly', 'cityOrArea',
+                         'trendTags', 'favoriteColors', 'topSize', 'bottomSize',
+                         'dressAbayaLength', 'girlsSize', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+
+      match /inventory/{itemId} {
+        allow get: if isSignedIn() &&
+                      request.auth.uid == userId &&
+                      isValidId(userId) &&
+                      isValidId(itemId) &&
+                      existing().userId == request.auth.uid;
+
+        allow list: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       existing().userId == request.auth.uid;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(itemId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'name', 'category', 'audience', 'boutiqueName',
+                           'neighborhood', 'priceUsd', 'color', 'sizeRange',
+                           'coverageSummary', 'trendTag', 'inStock', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'name', 'category', 'audience', 'boutiqueName',
+                           'neighborhood', 'priceUsd', 'color', 'sizeRange',
+                           'coverageSummary', 'trendTag', 'inStock', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidInventoryItem(incoming(), userId);
+
+        allow update: if isSignedIn() &&
+                         resource != null &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(itemId) &&
+                         isValidInventoryItem(incoming(), userId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           // Action 1: Toggle stock availability
+                           incoming().diff(existing()).affectedKeys().hasOnly(['inStock', 'updatedAt']) ||
+                           // Action 2: Full garment metadata update
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'name', 'category', 'audience', 'boutiqueName',
+                             'neighborhood', 'priceUsd', 'color', 'sizeRange',
+                             'coverageSummary', 'trendTag', 'inStock', 'updatedAt'
+                           ])
+                         );
+
+        allow delete: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(itemId);
+      }
+
+      match /saved_outfits/{outfitId} {
+        allow get: if isSignedIn() &&
+                      request.auth.uid == userId &&
+                      isValidId(userId) &&
+                      isValidId(outfitId) &&
+                      existing().userId == request.auth.uid;
+
+        allow list: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       existing().userId == request.auth.uid;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(outfitId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'audience', 'occasion', 'trendHighlight',
+                           'coverageVerification', 'stylingNotes', 'matchedPieces',
+                           'boutiqueSources', 'favorite', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'audience', 'occasion', 'trendHighlight',
+                           'coverageVerification', 'stylingNotes', 'matchedPieces',
+                           'boutiqueSources', 'favorite', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidSavedOutfit(incoming(), userId);
+
+        allow update: if isSignedIn() &&
+                         resource != null &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(outfitId) &&
+                         isValidSavedOutfit(incoming(), userId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           // Action 1: Favorite pin toggle
+                           incoming().diff(existing()).affectedKeys().hasOnly(['favorite', 'updatedAt']) ||
+                           // Action 2: Edit styling notes or title
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'title', 'stylingNotes', 'favorite', 'updatedAt'
+                           ])
+                         );
+
+        allow delete: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(outfitId);
+      }
+
+      match /outfit_feedback/{feedbackId} {
+        allow get: if isSignedIn() &&
+                      request.auth.uid == userId &&
+                      isValidId(userId) &&
+                      isValidId(feedbackId) &&
+                      existing().userId == request.auth.uid;
+
+        allow list: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(userId);
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(feedbackId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'outfitTitle', 'vote', 'dateKey', 'audience',
+                           'occasion', 'trendHighlight', 'matchedPieces', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'outfitTitle', 'vote', 'dateKey', 'audience',
+                           'occasion', 'trendHighlight', 'matchedPieces', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidOutfitFeedback(incoming(), userId);
+
+        allow update: if isSignedIn() &&
+                         resource != null &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(feedbackId) &&
+                         isValidOutfitFeedback(incoming(), userId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'vote', 'trendHighlight', 'matchedPieces', 'updatedAt'
+                         ]);
+
+        allow delete: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(userId) &&
+                         isValidId(feedbackId);
+      }
+    }
+  }
+}

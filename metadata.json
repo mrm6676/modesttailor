@@ -1,0 +1,6 @@
+{
+  "name": "Modest Tailor",
+  "description": "Personalized modest fashion stylist for ladies and girls, pairing current trends and coverage guidelines with local boutique inventory.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

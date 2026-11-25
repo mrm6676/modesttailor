@@ -1,0 +1,337 @@
+{
+  "entities": {
+    "StyleProfile": {
+      "title": "StyleProfile",
+      "description": "User style preferences and modest coverage guidelines for ladies and girls.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name for personalized styling."
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["Ladies", "Girls", "Teens", "Ladies & Girls"],
+          "description": "Target wearer category."
+        },
+        "necklineRule": {
+          "type": "string",
+          "description": "Preferred modest neckline coverage."
+        },
+        "sleeveRule": {
+          "type": "string",
+          "description": "Preferred sleeve length coverage."
+        },
+        "hemlineRule": {
+          "type": "string",
+          "description": "Preferred dress/skirt hemline coverage."
+        },
+        "fitRule": {
+          "type": "string",
+          "description": "Preferred silhouette looseness and drape."
+        },
+        "hijabFriendly": {
+          "type": "boolean",
+          "description": "Whether to coordinate hijab/headscarf styling."
+        },
+        "cityOrArea": {
+          "type": "string",
+          "description": "Local shopping district or city."
+        },
+        "trendTags": {
+          "type": "array",
+          "description": "Selected current modest fashion trends (max 10)."
+        },
+        "favoriteColors": {
+          "type": "array",
+          "description": "Preferred color palette swatches (max 10)."
+        },
+        "topSize": {
+          "type": "string",
+          "description": "Preferred top and outerwear clothing size."
+        },
+        "bottomSize": {
+          "type": "string",
+          "description": "Preferred skirt and bottom clothing size."
+        },
+        "dressAbayaLength": {
+          "type": "string",
+          "description": "Preferred dress or abaya length in inches."
+        },
+        "girlsSize": {
+          "type": "string",
+          "description": "Preferred girls or teens clothing size."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "audience",
+        "necklineRule",
+        "sleeveRule",
+        "hemlineRule",
+        "fitRule",
+        "hijabFriendly",
+        "cityOrArea",
+        "trendTags",
+        "favoriteColors",
+        "topSize",
+        "bottomSize",
+        "dressAbayaLength",
+        "girlsSize",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "Garment available in local boutique inventory or user wardrobe.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Garment title."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Top", "Bottom", "Dress & Abaya", "Outerwear", "Headwear & Accessory", "Set & Co-ord"],
+          "description": "Apparel category."
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["Ladies", "Girls", "Teens"],
+          "description": "Intended wearer age/sizing group."
+        },
+        "boutiqueName": {
+          "type": "string",
+          "description": "Local boutique or personal closet source."
+        },
+        "neighborhood": {
+          "type": "string",
+          "description": "Local neighborhood or store district."
+        },
+        "priceUsd": {
+          "type": "number",
+          "description": "Retail price in USD (0 for personal closet items)."
+        },
+        "color": {
+          "type": "string",
+          "description": "Primary color or tone."
+        },
+        "sizeRange": {
+          "type": "string",
+          "description": "Available sizes (e.g. XS-XL, Girls 6-12)."
+        },
+        "coverageSummary": {
+          "type": "string",
+          "description": "Modest coverage notes (neckline, sleeve, opacity, length)."
+        },
+        "trendTag": {
+          "type": "string",
+          "description": "Current fashion trend tag."
+        },
+        "inStock": {
+          "type": "boolean",
+          "description": "Whether item is currently in stock locally."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "category",
+        "audience",
+        "boutiqueName",
+        "neighborhood",
+        "priceUsd",
+        "color",
+        "sizeRange",
+        "coverageSummary",
+        "trendTag",
+        "inStock",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SavedOutfit": {
+      "title": "SavedOutfit",
+      "description": "Curated modest fashion outfit generated by Tailor AI and saved by user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Editorial look title."
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["Ladies", "Girls", "Teens", "Ladies & Girls"],
+          "description": "Target wearer category."
+        },
+        "occasion": {
+          "type": "string",
+          "description": "Occasion or setting."
+        },
+        "trendHighlight": {
+          "type": "string",
+          "description": "Explanation of current trend alignment."
+        },
+        "coverageVerification": {
+          "type": "string",
+          "description": "Verification of modest coverage compliance."
+        },
+        "stylingNotes": {
+          "type": "string",
+          "description": "Tailoring, layering, and proportion notes."
+        },
+        "matchedPieces": {
+          "type": "array",
+          "description": "List of matched local inventory pieces and layering items (max 12)."
+        },
+        "boutiqueSources": {
+          "type": "array",
+          "description": "Local boutiques carrying the matched pieces (max 12)."
+        },
+        "favorite": {
+          "type": "boolean",
+          "description": "Whether look is pinned as favorite."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "audience",
+        "occasion",
+        "trendHighlight",
+        "coverageVerification",
+        "stylingNotes",
+        "matchedPieces",
+        "boutiqueSources",
+        "favorite",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OutfitFeedback": {
+      "title": "OutfitFeedback",
+      "description": "Thumbs up/down feedback on AI daily outfit recommendations to improve future styling.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "outfitTitle": {
+          "type": "string",
+          "description": "Recommended outfit title."
+        },
+        "vote": {
+          "type": "string",
+          "enum": ["UP", "DOWN"],
+          "description": "User preference vote (UP or DOWN)."
+        },
+        "dateKey": {
+          "type": "string",
+          "description": "Date key (YYYY-MM-DD) when the daily recommendation was rated."
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["Ladies", "Girls", "Teens", "Ladies & Girls"],
+          "description": "Target wearer category."
+        },
+        "occasion": {
+          "type": "string",
+          "description": "Occasion or day theme."
+        },
+        "trendHighlight": {
+          "type": "string",
+          "description": "Trend direction associated with the rated look."
+        },
+        "matchedPieces": {
+          "type": "array",
+          "description": "Matched garment names in the rated outfit (max 12)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "outfitTitle",
+        "vote",
+        "dateKey",
+        "audience",
+        "occasion",
+        "trendHighlight",
+        "matchedPieces",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "StyleProfile",
+      "description": "Per-user modest fashion and coverage profile."
+    },
+    "/users/{userId}/inventory/{itemId}": {
+      "schema": "InventoryItem",
+      "description": "Per-user local boutique and wardrobe inventory items."
+    },
+    "/users/{userId}/saved_outfits/{outfitId}": {
+      "schema": "SavedOutfit",
+      "description": "Per-user AI-curated modest outfit lookbook."
+    },
+    "/users/{userId}/outfit_feedback/{feedbackId}": {
+      "schema": "OutfitFeedback",
+      "description": "Per-user thumbs up/down preference signals for Tailor AI."
+    }
+  }
+}
