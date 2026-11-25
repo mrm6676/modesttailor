@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Modest Tailor — Bespoke Modest Styling for Ladies &amp; Girls</title>
+  <title>Modest Tailor — Tailor Personalized Studio &amp; My Closet</title>
   <meta
     name="description"
-    content="Curated modest outfits for ladies, teens, and girls uniting verified coverage rules, saved clothing sizes, and local boutique stock."
+    content="Modest Tailor Studio: bespoke daily &amp; custom modest outfit curation for ladies, teens, and girls with verified coverage rules, saved clothing sizes, and My Closet."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="/styles.css" />
@@ -19,137 +19,441 @@
 <body>
   <header class="topbar">
     <div class="container topbar-inner">
-      <a href="#top" class="brand" aria-label="Modest Tailor home">
+      <a href="#studio" id="brand-home-link" class="brand" aria-label="Modest Tailor Studio home">
         <span class="brand-mark" aria-hidden="true">MT</span>
         <span class="brand-text">
           <span class="brand-eyebrow">BESPOKE MODEST ATELIER</span>
           <span class="brand-name">Modest Tailor</span>
         </span>
       </a>
-      <nav class="nav-links" aria-label="Primary navigation">
-        <a href="#features">Features</a>
-        <a href="#capsules">Lookbook</a>
-        <a href="#android-app" class="btn btn-sm btn-primary">Open Android App</a>
+
+      <nav class="nav-tabs" aria-label="Primary studio navigation">
+        <button type="button" class="nav-tab active" data-view="studio" id="nav-tab-studio">
+          Tailor Studio
+        </button>
+        <button type="button" class="nav-tab" data-view="closet" id="nav-tab-closet">
+          My Closet <span class="nav-badge" id="nav-closet-badge">0</span>
+        </button>
+        <button type="button" class="nav-tab" id="nav-open-preferences">
+          Charter &amp; Sizes
+        </button>
       </nav>
+
+      <div class="topbar-actions">
+        <a
+          href="https://ais-pre-nopubfwhecqdrsdmdwhk2v-888706755039.europe-west2.run.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-sm btn-primary"
+        >
+          Android App
+        </a>
+      </div>
     </div>
   </header>
 
-  <main id="top">
-    <section id="shared-look-banner" class="shared-look-section container hidden" aria-live="polite">
+  <main class="container main-shell">
+    <!-- Deep-Link Shared Look Banner -->
+    <section id="shared-look-banner" class="shared-look-section hidden" aria-live="polite">
       <div class="shared-card">
         <div class="shared-badge">Shared Modest Look</div>
         <h2 id="shared-title" class="serif-title"></h2>
         <p id="shared-meta" class="muted"></p>
         <p id="shared-coverage" class="coverage-pill"></p>
-        <p id="shared-notes"></p>
+        <p id="shared-notes" class="shared-notes"></p>
         <div id="shared-pieces" class="tag-row"></div>
-        <div class="hero-actions">
-          <a id="shared-deep-link" href="modesttailor://outfit" class="btn btn-primary">Open in Modest Tailor App</a>
-          <button id="dismiss-shared" type="button" class="btn btn-outline">Browse Atelier</button>
+        <div class="hero-actions" style="margin-top: 14px;">
+          <button id="save-shared-btn" type="button" class="btn btn-primary">Save to My Closet</button>
+          <a id="shared-deep-link" href="modesttailor://outfit" class="btn btn-outline">Open in Android App</a>
+          <button id="dismiss-shared" type="button" class="btn btn-ghost">Dismiss</button>
         </div>
       </div>
     </section>
 
-    <section class="hero container">
-      <div class="hero-copy">
-        <p class="eyebrow">LADIES, TEENS &amp; GIRLS CURATION</p>
-        <h1 class="hero-title serif-title">Trend-Forward Elegance, Tailored to Your Coverage</h1>
-        <p class="hero-subtitle">
-          Pair your personal neckline, sleeve, and hemline guidelines with saved clothing sizes
-          and real local boutique inventory—all in one refined studio.
+    <!-- VIEW 1: MODEST TAILOR STUDIO (TAILOR PERSONALIZED) -->
+    <section id="view-studio" class="studio-view" aria-label="Modest Tailor Studio">
+      <!-- 1. Editorial Masthead & Live Metrics -->
+      <div class="masthead">
+        <div class="masthead-top">
+          <div>
+            <p class="eyebrow">PERSONALIZED MODEST STYLING</p>
+            <h1 class="page-title serif-title">Modest Tailor Studio</h1>
+          </div>
+          <div class="masthead-pills">
+            <span class="district-pill" id="masthead-district">Oakbrook &amp; Promenade</span>
+          </div>
+        </div>
+
+        <div class="metric-pills-row">
+          <button type="button" class="metric-pill metric-pill-sage" id="metric-stock-btn">
+            <span class="metric-pill-label">Local Boutique Stock</span>
+            <strong class="metric-pill-value" id="metric-size-match">0/0 fit</strong>
+          </button>
+          <button type="button" class="metric-pill metric-pill-rose" id="metric-closet-btn">
+            <span class="metric-pill-label">My Closet</span>
+            <strong class="metric-pill-value" id="metric-closet-count">0 curated</strong>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Layered Asymmetric Hero + Overlapping Active Charter & Saved Sizes Card -->
+      <div class="layered-hero">
+        <div class="hero-banner">
+          <img
+            src="/assets/editorial-hero.jpg"
+            alt="Modest Tailor editorial drape and layered linen styling"
+            class="hero-banner-img"
+          />
+          <div class="hero-banner-scrim"></div>
+          <div class="hero-banner-top-pills">
+            <span class="pill pill-sage" id="hero-audience-pill">Ladies &amp; Girls</span>
+            <span class="pill pill-brass" id="hero-size-pill">Size-Matched Stock</span>
+          </div>
+          <div class="hero-banner-copy">
+            <h2 class="serif-title">Trend-Forward Elegance, Tailored to Your Charter</h2>
+            <p>Verified coverage rules, saved clothing sizes, and boutique stock in one studio.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="charter-overlay-card"
+          id="charter-summary-btn"
+          aria-label="Edit modesty charter and clothing sizes"
+        >
+          <div class="charter-overlay-head">
+            <span class="charter-title-wrap">
+              <span class="charter-badge-dot" aria-hidden="true">&#10003;</span>
+              <strong>Active Modesty Charter &amp; Fit</strong>
+            </span>
+            <span class="charter-edit-link">Edit Preferences &rarr;</span>
+          </div>
+          <p class="charter-rules-line" id="charter-rules-summary"></p>
+          <p class="charter-sizes-line" id="charter-sizes-summary"></p>
+          <div class="swatch-row" id="charter-color-swatches"></div>
+        </button>
+      </div>
+
+      <!-- 3. Quick Actions Row -->
+      <div class="quick-actions-section">
+        <h2 class="section-subtitle">Quick Actions</h2>
+        <div class="quick-actions-grid">
+          <button type="button" class="quick-action-card" id="qa-daily-btn">
+            <span class="qa-icon qa-icon-rose" aria-hidden="true">&#10022;</span>
+            <span class="qa-text">
+              <strong>View Daily Recommendation</strong>
+              <small>Tailored for today</small>
+            </span>
+          </button>
+          <button type="button" class="quick-action-card" id="qa-closet-btn">
+            <span class="qa-icon qa-icon-sage" aria-hidden="true">&#9733;</span>
+            <span class="qa-text">
+              <strong>Explore My Closet</strong>
+              <small id="qa-closet-sub">0 saved looks</small>
+            </span>
+          </button>
+          <button type="button" class="quick-action-card" id="qa-preferences-btn">
+            <span class="qa-icon qa-icon-brass" aria-hidden="true">&#9881;</span>
+            <span class="qa-text">
+              <strong>Update Preferences</strong>
+              <small>Charter, colors &amp; sizes</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Today's Daily Personalized Edit -->
+      <section id="daily-edit-section" class="surface-panel" aria-label="Today's Daily Personalized Edit">
+        <div class="daily-header">
+          <span class="daily-badge" id="daily-date-badge">TODAY'S DAILY EDIT</span>
+          <button type="button" class="btn btn-sm btn-outline" id="refresh-daily-btn">
+            Refresh Edit
+          </button>
+        </div>
+        <h2 class="serif-title daily-theme-title" id="daily-theme-title"></h2>
+        <blockquote class="editorial-quote" id="daily-editorial-summary"></blockquote>
+
+        <div id="daily-outfits-grid" class="daily-outfits-grid"></div>
+      </section>
+
+      <!-- 5. Editorial Capsule Starters -->
+      <section class="capsules-starter-section" aria-label="Editorial Capsule Starters">
+        <h2 class="section-subtitle">Editorial Capsule Starters</h2>
+        <div class="capsule-starters-grid">
+          <button type="button" class="capsule-photo-card" id="starter-ladies-btn">
+            <img src="/assets/ladies-capsule.jpg" alt="Ladies modest studio capsule" />
+            <span class="capsule-photo-scrim"></span>
+            <span class="capsule-photo-copy">
+              <strong>Ladies Atelier Capsule</strong>
+              <small>Structured outerwear &amp; pleated satin drape</small>
+            </span>
+          </button>
+          <button type="button" class="capsule-photo-card" id="starter-girls-btn">
+            <img src="/assets/girls-capsule.jpg" alt="Girls and teens modest capsule" />
+            <span class="capsule-photo-scrim"></span>
+            <span class="capsule-photo-copy">
+              <strong>Girls &amp; Teens Capsule</strong>
+              <small>Breathable cotton tiers &amp; full-sleeve comfort</small>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 6. Tailor Personalized Composer -->
+      <section id="composer-section" class="surface-panel composer-panel" aria-label="Tailor Personalized Composer">
+        <p class="eyebrow">BESPOKE STYLING COMPOSER</p>
+        <h2 class="serif-title composer-title">Tailor Personalized Outfits</h2>
+        <p class="muted small composer-desc">
+          Select an occasion, season, and styling note. Curations automatically filter your boutique stock
+          by your saved clothing sizes, modesty charter, and thumbs up/down feedback.
         </p>
-        <div class="hero-actions" id="android-app">
-          <a
-            href="https://ais-pre-nopubfwhecqdrsdmdwhk2v-888706755039.europe-west2.run.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-primary"
-          >
-            Launch Android Preview
-          </a>
-          <a href="#capsules" class="btn btn-outline">Explore Capsule Edits</a>
-        </div>
-        <ul class="metric-strip" aria-label="Atelier highlights">
-          <li><strong>4</strong><span>Coverage Rules Verified</span></li>
-          <li><strong>XS–XXL</strong><span>&amp; Girls 6–16 Fit Filtering</span></li>
-          <li><strong>Daily</strong><span>Personalized Lookbooks</span></li>
-        </ul>
-      </div>
 
-      <div class="hero-showcase" aria-label="Modest Tailor Studio preview">
-        <div class="atelier-card">
-          <div class="atelier-card-head">
-            <span class="pill pill-sage">Ladies &amp; Girls</span>
-            <span class="pill pill-brass">Size-Matched Stock</span>
-          </div>
-          <h2 class="serif-title">Active Charter &amp; Fit</h2>
-          <p class="muted small">High Collarbone &bull; Full Wrist Cuff &bull; Floor / Ankle Length</p>
-          <div class="swatch-row" aria-label="Atelier palette">
-            <span class="swatch-chip"><i class="dot rosewood"></i>Rosewood</span>
-            <span class="swatch-chip"><i class="dot ivory"></i>Silk Ivory</span>
-            <span class="swatch-chip"><i class="dot sage"></i>Sage Olive</span>
-            <span class="swatch-chip"><i class="dot camel"></i>Warm Camel</span>
-          </div>
-          <div class="divider"></div>
-          <div class="featured-edit">
-            <span class="eyebrow">TODAY'S DAILY EDIT</span>
-            <h3>Rosewood Pleated Satin &amp; Linen Trench</h3>
-            <p class="small muted">
-              Architectural longline outerwear over sunlit pleated satin maxi skirt with coordinated champagne modal wrap.
-            </p>
-          </div>
+        <div class="composer-step">
+          <label class="composer-label">01 &middot; Occasion</label>
+          <div class="chip-row" id="composer-occasion-chips"></div>
         </div>
-      </div>
+
+        <div class="composer-step">
+          <label class="composer-label">02 &middot; Season &amp; Climate</label>
+          <div class="chip-row" id="composer-season-chips"></div>
+        </div>
+
+        <div class="composer-step">
+          <label class="composer-label" for="composer-note-input">03 &middot; Styling Request or Color Note</label>
+          <textarea
+            id="composer-note-input"
+            class="text-input"
+            rows="2"
+            placeholder="e.g., Sage linen layer with modest mock neck for studio meeting..."
+          ></textarea>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block" id="generate-outfits-btn">
+          Curate Personalized Outfits &rarr;
+        </button>
+
+        <div id="composer-results-wrap" class="composer-results hidden">
+          <blockquote class="editorial-quote" id="composer-editorial-note"></blockquote>
+          <div id="composer-outfits-list" class="composer-outfits-list"></div>
+        </div>
+      </section>
     </section>
 
-    <section id="features" class="features container">
-      <div class="section-header">
-        <p class="eyebrow">STUDIO CAPABILITIES</p>
-        <h2 class="serif-title">Built for Effortless Modest Dressing</h2>
-      </div>
-      <div class="feature-grid">
-        <article class="card">
-          <span class="step-num">01</span>
-          <h3>Coverage-First Curation</h3>
-          <p>Every silhouette checks neckline height, full sleeves, opacity, and relaxed drape before reaching your lookbook.</p>
-        </article>
-        <article class="card">
-          <span class="step-num">02</span>
-          <h3>Saved Clothing Sizes</h3>
-          <p>Track Ladies top, bottom, and abaya lengths alongside Girls &amp; Teens sizes so boutique matches always fit.</p>
-        </article>
-        <article class="card">
-          <span class="step-num">03</span>
-          <h3>Searchable My Closet</h3>
-          <p>Bookmark favorite ensembles, filter by tags like Summer, Formal, or Work, and share deep-linked outfit cards.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="capsules" class="capsules container">
-      <div class="section-header row-between">
+    <!-- VIEW 2: MY CLOSET -->
+    <section id="view-closet" class="closet-view hidden" aria-label="My Closet">
+      <div class="closet-header">
         <div>
-          <p class="eyebrow">CURATED STARTERS</p>
-          <h2 class="serif-title">Interactive Capsule Lookbook</h2>
+          <p class="eyebrow">SAVED LOOKBOOK</p>
+          <h1 class="page-title serif-title">My Closet</h1>
+          <p class="muted small">
+            Bookmarked modest ensembles, personal styling notes, and instant shareable look cards.
+          </p>
         </div>
-        <div class="filter-bar" role="group" aria-label="Filter capsules by audience or tag">
-          <button type="button" class="filter-btn active" data-filter="all">All</button>
-          <button type="button" class="filter-btn" data-filter="ladies">Ladies</button>
-          <button type="button" class="filter-btn" data-filter="girls">Girls</button>
-          <button type="button" class="filter-btn" data-filter="work">Work</button>
-          <button type="button" class="filter-btn" data-filter="formal">Formal</button>
-          <button type="button" class="filter-btn" data-filter="summer">Summer</button>
+        <div class="closet-header-right">
+          <span class="pill pill-sage" id="closet-stats-pill">0 Saved &bull; 0 Pinned</span>
+          <button type="button" class="btn btn-sm btn-outline" id="closet-back-studio-btn">
+            + Curate More Looks
+          </button>
         </div>
       </div>
 
-      <div id="capsule-grid" class="capsule-grid"></div>
+      <div class="closet-controls surface-panel">
+        <div class="search-bar-wrap">
+          <input
+            type="search"
+            id="closet-search-input"
+            class="search-input"
+            placeholder="Search by title, boutique, garment, or #tag (e.g. #work, #summer)..."
+            aria-label="Search My Closet"
+          />
+          <button type="button" id="closet-search-clear" class="btn btn-sm btn-ghost hidden">
+            Clear
+          </button>
+        </div>
+
+        <div class="chip-row" id="closet-tag-chips" aria-label="Filter by style tags"></div>
+        <div class="chip-row" id="closet-audience-chips" aria-label="Filter by audience or favorites"></div>
+      </div>
+
+      <div id="closet-match-bar" class="closet-match-bar hidden">
+        <span id="closet-match-count" class="small muted"></span>
+        <button type="button" class="btn btn-sm btn-ghost" id="closet-clear-filters-btn">
+          Clear Filters
+        </button>
+      </div>
+
+      <div id="closet-grid" class="closet-grid"></div>
+
+      <div id="closet-empty-state" class="surface-panel empty-state hidden">
+        <h2 class="serif-title">Your Closet Lookbook Is Waiting</h2>
+        <p class="muted" id="closet-empty-message">
+          Bookmark curated ensembles from Modest Tailor Studio to keep your favorite modest looks and notes ready anytime.
+        </p>
+        <div class="hero-actions" style="justify-content: center; margin-top: 12px;">
+          <button type="button" class="btn btn-primary" id="closet-empty-cta">
+            Explore Modest Tailor Studio
+          </button>
+        </div>
+      </div>
     </section>
   </main>
 
+  <!-- MODAL: PREFERENCES & CLOTHING SIZES -->
+  <div id="preferences-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="pref-modal-title">
+    <div class="modal-card modal-card-lg">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">MODESTY CHARTER &amp; SIZES</p>
+          <h2 id="pref-modal-title" class="serif-title">Personalize Your Atelier</h2>
+        </div>
+        <button type="button" class="icon-close-btn" id="close-preferences-btn" aria-label="Close preferences">&times;</button>
+      </div>
+
+      <form id="preferences-form" class="modal-body-scroll">
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="pref-audience">Audience Focus</label>
+            <select id="pref-audience" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-district">Local Boutique District</label>
+            <input id="pref-district" type="text" class="text-input" placeholder="Oakbrook & Promenade" />
+          </div>
+        </div>
+
+        <h3 class="modal-subheading">Coverage Rules</h3>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="pref-neckline">Neckline Rule</label>
+            <select id="pref-neckline" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-sleeve">Sleeve Rule</label>
+            <select id="pref-sleeve" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-hemline">Hemline Rule</label>
+            <select id="pref-hemline" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-fit">Silhouette &amp; Fit</label>
+            <select id="pref-fit" class="text-input"></select>
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="pref-hijab" />
+          <span>Prioritize Hijab-Friendly headwear &amp; high-collar coordination</span>
+        </label>
+
+        <h3 class="modal-subheading">Saved Clothing Sizes</h3>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="pref-top-size">Ladies Top Size</label>
+            <select id="pref-top-size" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-bottom-size">Ladies Bottom Size</label>
+            <select id="pref-bottom-size" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-abaya-length">Dress / Abaya Length (in)</label>
+            <select id="pref-abaya-length" class="text-input"></select>
+          </div>
+          <div class="form-field">
+            <label for="pref-girls-size">Girls &amp; Teens Size</label>
+            <select id="pref-girls-size" class="text-input"></select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Favorite Palette</label>
+          <div id="pref-colors-chips" class="chip-row"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Preferred Modest Trends</label>
+          <div id="pref-trends-chips" class="chip-row"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="cancel-preferences-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Preferences &amp; Refresh Studio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CLOSET OUTFIT DETAIL -->
+  <div id="closet-detail-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="pill pill-sage" id="detail-audience-pill"></span>
+          <h2 id="detail-modal-title" class="serif-title" style="margin-top: 8px;"></h2>
+          <p class="small muted" id="detail-occasion-line"></p>
+        </div>
+        <button type="button" class="icon-close-btn" id="close-detail-btn" aria-label="Close outfit details">&times;</button>
+      </div>
+      <div class="modal-body-scroll">
+        <div class="coverage-pill" id="detail-coverage-box"></div>
+        <div>
+          <strong class="small">Trend Highlight</strong>
+          <p class="small muted" id="detail-trend-text"></p>
+        </div>
+        <div>
+          <strong class="small">Matched Pieces</strong>
+          <div id="detail-pieces-row" class="tag-row"></div>
+        </div>
+        <div>
+          <strong class="small">Local Boutique Sources</strong>
+          <p class="small" id="detail-boutiques-text"></p>
+        </div>
+        <div>
+          <strong class="small">Styling Notes</strong>
+          <p class="small" id="detail-notes-text"></p>
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-wrap">
+        <button type="button" class="btn btn-sm btn-outline" id="detail-fav-btn">Favorite</button>
+        <button type="button" class="btn btn-sm btn-outline" id="detail-share-btn">Share Look</button>
+        <button type="button" class="btn btn-sm btn-outline" id="detail-edit-btn">Edit Notes</button>
+        <button type="button" class="btn btn-sm btn-danger" id="detail-delete-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT CLOSET OUTFIT NOTES -->
+  <div id="closet-edit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="edit-modal-title" class="serif-title">Edit Closet Ensemble</h2>
+        <button type="button" class="icon-close-btn" id="close-edit-btn" aria-label="Close edit dialog">&times;</button>
+      </div>
+      <form id="closet-edit-form" class="modal-body-scroll">
+        <div class="form-field">
+          <label for="edit-outfit-title">Look Title</label>
+          <input id="edit-outfit-title" type="text" class="text-input" required />
+        </div>
+        <div class="form-field">
+          <label for="edit-outfit-notes">Styling Notes (supports #tags like #eid or #work)</label>
+          <textarea id="edit-outfit-notes" rows="4" class="text-input"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="cancel-edit-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast feedback -->
+  <div id="toast-banner" class="toast-banner hidden" role="status" aria-live="polite"></div>
+
   <footer class="footer">
     <div class="container footer-inner">
-      <p><strong>Modest Tailor</strong> &mdash; Ladies, Teens &amp; Girls Modest Fashion Studio</p>
-      <p class="small muted">Android APK/AAB builds live in the native Gradle project; this web companion deploys statically on Vercel.</p>
+      <p><strong>Modest Tailor</strong> &mdash; Modest Tailor Studio &amp; My Closet</p>
+      <p class="small muted">Deployed statically on Vercel &bull; Syncs &amp; runs Gemini AI natively in the Android app.</p>
     </div>
   </footer>
 
