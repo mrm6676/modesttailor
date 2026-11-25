@@ -53,6 +53,78 @@ object SizeMatchingHelper {
         )
     }
 
+    fun partitionInventoryBySizeAndCoverage(
+        items: List<InventoryItem>,
+        profile: StyleProfile
+    ): SizeFilteredInventory {
+        val matching = mutableListOf<InventoryItem>()
+        val excluded = mutableListOf<InventoryItem>()
+        for (item in items) {
+            if (item.matchesSavedSizes(profile) && item.matchesCoverageRequirements(profile)) {
+                matching.add(item)
+            } else {
+                excluded.add(item)
+            }
+        }
+        return SizeFilteredInventory(
+            matchingItems = matching,
+            excludedItems = excluded
+        )
+    }
+
+    fun InventoryItem.matchesCoverageRequirements(profile: StyleProfile): Boolean {
+        val cat = category.trim()
+        if (cat.equals("Headwear & Accessory", ignoreCase = true)) {
+            return profile.hijabFriendly
+        }
+
+        val summary = coverageSummary.trim().lowercase()
+        if (summary.isBlank()) return true
+
+        // Neckline check
+        val neckPref = profile.necklineRule.lowercase()
+        if (neckPref.contains("high") || neckPref.contains("mock") || neckPref.contains("crew")) {
+            val hasLowNeck = summary.contains("low neck") ||
+                summary.contains("v-neck") ||
+                summary.contains("plunge") ||
+                summary.contains("strapless")
+            if (hasLowNeck) return false
+        }
+
+        // Sleeve check
+        val sleevePref = profile.sleeveRule.lowercase()
+        if (sleevePref.contains("full") || sleevePref.contains("wrist") || sleevePref.contains("long")) {
+            val hasShortSleeve = summary.contains("sleeveless") ||
+                summary.contains("short sleeve") ||
+                summary.contains("cap sleeve")
+            if (hasShortSleeve) return false
+        }
+
+        // Hemline check for bottoms, dresses, co-ords, and outerwear
+        if (cat in setOf("Bottom", "Dress & Abaya", "Set & Co-ord", "Outerwear")) {
+            val hemPref = profile.hemlineRule.lowercase()
+            val isFloorOnlyPref = hemPref.contains("floor") && !hemPref.contains("ankle")
+            if (isFloorOnlyPref) {
+                val isMidiOrKnee = summary.contains("midi") || summary.contains("knee")
+                if (isMidiOrKnee) return false
+                // Floor-length strict filter prefers floor/maxi/full-length silhouettes
+                val meetsFloorOrMaxi = summary.contains("floor") ||
+                    summary.contains("maxi") ||
+                    summary.contains("full-length")
+                if (!meetsFloorOrMaxi && (summary.contains("calf") || summary.contains("mid-thigh"))) {
+                    return false
+                }
+            } else if (hemPref.contains("ankle") || hemPref.contains("maxi")) {
+                val isShortOrMidi = summary.contains("above knee") ||
+                    summary.contains("mini ") ||
+                    (summary.contains("midi") && !summary.contains("maxi") && !summary.contains("ankle"))
+                if (isShortOrMidi) return false
+            }
+        }
+
+        return true
+    }
+
     fun InventoryItem.matchesSavedSizes(profile: StyleProfile): Boolean {
         val rawRange = sizeRange.trim()
         if (rawRange.isBlank()) return true

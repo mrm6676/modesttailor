@@ -461,8 +461,45 @@ function matchesItemSavedSizes(item, profile) {
   return true;
 }
 
+function matchesItemCoverageRequirements(item, profile) {
+  const cat = (item.category || "").trim();
+  if (cat.toLowerCase() === "headwear & accessory") {
+    return Boolean(profile.hijabFriendly);
+  }
+
+  const summary = (item.coverageSummary || "").trim().toLowerCase();
+  if (!summary) return true;
+
+  const neckPref = (profile.necklineRule || "").toLowerCase();
+  if (neckPref.includes("high") || neckPref.includes("mock") || neckPref.includes("crew")) {
+    if (/(low neck|v-neck|plunge|strapless)/.test(summary)) return false;
+  }
+
+  const sleevePref = (profile.sleeveRule || "").toLowerCase();
+  if (sleevePref.includes("full") || sleevePref.includes("wrist") || sleevePref.includes("long")) {
+    if (/(sleeveless|short sleeve|cap sleeve)/.test(summary)) return false;
+  }
+
+  if (["Bottom", "Dress & Abaya", "Set & Co-ord", "Outerwear"].includes(cat)) {
+    const hemPref = (profile.hemlineRule || "").toLowerCase();
+    const isFloorOnly = hemPref.includes("floor") && !hemPref.includes("ankle");
+    if (isFloorOnly) {
+      if (/(midi|knee)/.test(summary)) return false;
+      const meetsFloorOrMaxi = /(floor|maxi|full-length)/.test(summary);
+      if (!meetsFloorOrMaxi && /(calf|mid-thigh)/.test(summary)) return false;
+    } else if (hemPref.includes("ankle") || hemPref.includes("maxi")) {
+      if (summary.includes("above knee") || summary.includes("mini ")) return false;
+      if (summary.includes("midi") && !summary.includes("maxi") && !summary.includes("ankle")) return false;
+    }
+  }
+
+  return true;
+}
+
 function getSizeMatchedInventory(profile) {
-  return STARTER_BOUTIQUE_ITEMS.filter((item) => matchesItemSavedSizes(item, profile));
+  return STARTER_BOUTIQUE_ITEMS.filter(
+    (item) => matchesItemSavedSizes(item, profile) && matchesItemCoverageRequirements(item, profile)
+  );
 }
 
 function formatSizeSummary(profile) {
@@ -883,17 +920,55 @@ function submitDailyFeedback(outfit, vote, dateKey) {
   renderDailyEdit();
 }
 
+function resolveOutfitDesignImage(outfit) {
+  const corpus = [
+    outfit?.title || "",
+    outfit?.audience || "",
+    outfit?.occasion || "",
+    outfit?.trendHighlight || "",
+    (outfit?.matchedPieces || []).join(" ")
+  ].join(" ").toLowerCase();
+
+  if (/(abaya|kaftan|espresso|evening|gala|eid|festive|celebration)/.test(corpus)) {
+    return "/assets/design-espresso-abaya.jpg";
+  }
+  if (/(trench|sage|olive|linen|utility|duster|khaki)/.test(corpus)) {
+    return "/assets/design-sage-trench.jpg";
+  }
+  if (/(girl|peter-pan|cottagecore|pointelle|cardigan|garden|tiered)/.test(corpus)) {
+    return "/assets/design-girls-garden.jpg";
+  }
+  if (/(teen|denim|campus|wide-leg|tunic|school)/.test(corpus)) {
+    return "/assets/design-teens-denim.jpg";
+  }
+  if (/(rosewood|satin|pleated|bishop|silk|mock-neck|blouse)/.test(corpus)) {
+    return "/assets/design-rosewood-satin.jpg";
+  }
+  const aud = (outfit?.audience || "").toLowerCase();
+  if (aud.includes("girls")) return "/assets/design-girls-garden.jpg";
+  if (aud.includes("teens")) return "/assets/design-teens-denim.jpg";
+  return "/assets/design-rosewood-satin.jpg";
+}
+
 /* Reusable Curated Outfit Card Builder */
 function buildOutfitCardElement(outfit, options = {}) {
   const { index = 0, total = 1, showFeedback = false, dateKey = "" } = options;
   const card = el("article", "outfit-card");
 
+  const mediaWrap = el("div", "outfit-design-media");
+  const img = el("img", "outfit-design-img");
+  img.src = resolveOutfitDesignImage(outfit);
+  img.alt = `${outfit.title || "Curated modest outfit"} design preview`;
+  img.loading = "lazy";
+
+  const scrim = el("div", "outfit-design-scrim");
   const head = el("div", "outfit-card-head");
   head.append(
     el("span", "pill pill-sage", outfit.audience || "Ladies"),
     el("span", "pill pill-brass", `Look 0${index + 1}${total > 1 ? ` / 0${total}` : ""}`)
   );
-  card.append(head);
+  mediaWrap.append(img, scrim, head);
+  card.append(mediaWrap);
 
   const titleEl = el("h3", "serif-title outfit-title", outfit.title);
   card.append(titleEl);
@@ -1001,16 +1076,26 @@ function switchView(viewName) {
 function renderMastheadAndCharter() {
   const matched = getSizeMatchedInventory(state.profile);
   const total = STARTER_BOUTIQUE_ITEMS.length;
+  const matchPercent = total > 0 ? Math.round((matched.length / total) * 100) : 0;
   const savedCount = state.closet.length;
 
   document.getElementById("masthead-district").textContent = state.profile.cityOrArea || "Oakbrook & Promenade";
-  document.getElementById("metric-size-match").textContent = `${matched.length}/${total} fit`;
+  document.getElementById("metric-size-match").textContent = `${matched.length}/${total} fit & coverage`;
+  document.getElementById("metric-match-percent").textContent = `${matchPercent}%`;
+  const progressFill = document.getElementById("metric-progress-fill");
+  const progressTrack = document.getElementById("metric-progress-track");
+  if (progressFill) {
+    progressFill.style.width = `${matchPercent}%`;
+  }
+  if (progressTrack) {
+    progressTrack.setAttribute("aria-valuenow", String(matchPercent));
+  }
   document.getElementById("metric-closet-count").textContent = `${savedCount} curated`;
   document.getElementById("nav-closet-badge").textContent = String(savedCount);
   document.getElementById("qa-closet-sub").textContent = `${savedCount} saved look${savedCount === 1 ? "" : "s"}`;
 
   document.getElementById("hero-audience-pill").textContent = state.profile.audience;
-  document.getElementById("hero-size-pill").textContent = `${matched.length}/${total} Size-Matched Pieces`;
+  document.getElementById("hero-size-pill").textContent = `${matched.length}/${total} Size & Coverage Match (${matchPercent}%)`;
   document.getElementById("charter-rules-summary").textContent =
     `${state.profile.necklineRule} \u2022 ${state.profile.sleeveRule} \u2022 ${state.profile.hemlineRule} \u2022 ${state.profile.fitRule}`;
   document.getElementById("charter-sizes-summary").textContent =
@@ -1169,14 +1254,19 @@ function renderCloset() {
 
   const cards = filtered.map((outfit) => {
     const card = el("article", "closet-card");
-    const audLower = (outfit.audience || "").toLowerCase();
-    const toneClass = audLower.includes("girls") ? "girls" : audLower.includes("teens") ? "teens" : "ladies";
 
-    const banner = el("div", `closet-card-banner ${toneClass}`);
+    const banner = el("div", "closet-card-banner");
     banner.addEventListener("click", (e) => {
       if (e.target.closest(".fav-heart-btn")) return;
       openClosetDetailModal(outfit.id);
     });
+
+    const bannerImg = el("img", "closet-banner-img");
+    bannerImg.src = resolveOutfitDesignImage(outfit);
+    bannerImg.alt = `${outfit.title || "Saved modest outfit"} design preview`;
+    bannerImg.loading = "lazy";
+
+    const bannerScrim = el("div", "closet-banner-scrim");
 
     const bannerTop = el("div", "closet-banner-top");
     bannerTop.append(el("span", "closet-audience-tag", outfit.audience || "Ladies"));
@@ -1191,7 +1281,8 @@ function renderCloset() {
     favBtn.addEventListener("click", () => toggleClosetFavorite(outfit.id));
     bannerTop.append(favBtn);
 
-    banner.append(bannerTop, el("span", "small", outfit.occasion || "Curated Look"));
+    const occasionSpan = el("span", "small closet-banner-occasion", outfit.occasion || "Curated Look");
+    banner.append(bannerImg, bannerScrim, bannerTop, occasionSpan);
     card.append(banner);
 
     const body = el("div", "closet-card-body");
@@ -1347,6 +1438,11 @@ function openClosetDetailModal(outfitId) {
   document.getElementById("detail-audience-pill").textContent = outfit.audience || "Ladies";
   document.getElementById("detail-modal-title").textContent = outfit.title;
   document.getElementById("detail-occasion-line").textContent = outfit.occasion || "Curated Look";
+  const detailImg = document.getElementById("detail-design-img");
+  if (detailImg) {
+    detailImg.src = resolveOutfitDesignImage(outfit);
+    detailImg.alt = `${outfit.title || "Saved outfit"} design preview`;
+  }
   document.getElementById("detail-coverage-box").textContent =
     outfit.coverageVerification || "Verified modest coverage";
   document.getElementById("detail-trend-text").textContent = outfit.trendHighlight || "Editorial capsule";
@@ -1406,6 +1502,12 @@ function hydrateSharedDeepLink() {
 
   titleEl.textContent = title;
   metaEl.textContent = `${audience} \u2022 ${occasion}`;
+  const sharedImg = document.getElementById("shared-design-img");
+  if (sharedImg) {
+    sharedImg.src = resolveOutfitDesignImage({ title, audience, occasion, matchedPieces: pieces });
+    sharedImg.alt = `${title} design preview`;
+    sharedImg.classList.remove("hidden");
+  }
   covEl.textContent = coverage;
   notesEl.textContent = notes;
   piecesEl.replaceChildren(...pieces.map((p) => el("span", "tag-chip", p)));

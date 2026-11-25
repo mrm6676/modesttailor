@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -64,15 +66,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.model.AiCuratedOutfit
 import com.example.data.model.FeedbackVote
 import com.example.data.model.InventoryItem
+import com.example.util.OutfitDesignArtworkHelper
 import com.example.data.model.SavedOutfit
 import com.example.data.model.StyleProfile
 import com.example.ui.screens.BoutiqueInventoryScreen
@@ -391,6 +397,16 @@ private fun SharedModestLookDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                Image(
+                    painter = painterResource(id = OutfitDesignArtworkHelper.resolveOutfitImage(outfit)),
+                    contentDescription = "${outfit.title} — ${stringResource(R.string.cd_outfit_design_preview)}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(170.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                )
+
                 Surface(
                     color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
                     shape = MaterialTheme.shapes.medium,

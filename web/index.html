@@ -57,6 +57,7 @@
     <section id="shared-look-banner" class="shared-look-section hidden" aria-live="polite">
       <div class="shared-card">
         <div class="shared-badge">Shared Modest Look</div>
+        <img id="shared-design-img" class="modal-design-img hidden" alt="Shared modest outfit design preview" />
         <h2 id="shared-title" class="serif-title"></h2>
         <p id="shared-meta" class="muted"></p>
         <p id="shared-coverage" class="coverage-pill"></p>
@@ -86,8 +87,22 @@
 
         <div class="metric-pills-row">
           <button type="button" class="metric-pill metric-pill-sage" id="metric-stock-btn">
-            <span class="metric-pill-label">Local Boutique Stock</span>
-            <strong class="metric-pill-value" id="metric-size-match">0/0 fit</strong>
+            <div class="metric-pill-top">
+              <span class="metric-pill-label">Local Boutique Stock</span>
+              <span class="metric-percent-badge" id="metric-match-percent">0%</span>
+            </div>
+            <strong class="metric-pill-value" id="metric-size-match">0/0 fit &amp; coverage</strong>
+            <div
+              class="metric-progress-track"
+              id="metric-progress-track"
+              role="progressbar"
+              aria-label="Percentage of curated boutique items matching your size and coverage requirements"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <div class="metric-progress-fill" id="metric-progress-fill"></div>
+            </div>
           </button>
           <button type="button" class="metric-pill metric-pill-rose" id="metric-closet-btn">
             <span class="metric-pill-label">My Closet</span>
@@ -396,6 +411,7 @@
         <button type="button" class="icon-close-btn" id="close-detail-btn" aria-label="Close outfit details">&times;</button>
       </div>
       <div class="modal-body-scroll">
+        <img id="detail-design-img" class="modal-design-img" alt="Saved modest outfit design preview" />
         <div class="coverage-pill" id="detail-coverage-box"></div>
         <div>
           <strong class="small">Trend Highlight</strong>

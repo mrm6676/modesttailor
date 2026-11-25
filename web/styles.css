@@ -315,12 +315,49 @@ body {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 5px;
   transition: transform 0.15s ease;
 }
 
 .metric-pill:hover {
   transform: translateY(-1px);
+}
+
+.metric-pill-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.metric-percent-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(9, 32, 20, 0.12);
+  color: #092014;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.metric-progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(9, 32, 20, 0.14);
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.metric-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--sage);
+  transition: width 0.35s ease;
 }
 
 .metric-pill-sage {
@@ -638,18 +675,57 @@ body {
   background: var(--ivory);
   border: 1px solid var(--outline);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 12px;
+  gap: 11px;
+}
+
+.outfit-design-media {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  background: var(--surface-alt);
+}
+
+.outfit-design-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+.outfit-design-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(24, 15, 18, 0.45) 0%, rgba(24, 15, 18, 0.08) 55%, rgba(24, 15, 18, 0.35) 100%);
+  pointer-events: none;
 }
 
 .outfit-card-head {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  z-index: 2;
+}
+
+.modal-design-img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 14px;
+  display: block;
+  margin-bottom: 10px;
 }
 
 .outfit-title {
@@ -955,25 +1031,39 @@ body {
 }
 
 .closet-card-banner {
+  position: relative;
   padding: 12px 14px;
-  min-height: 82px;
+  min-height: 158px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   color: #fff;
   cursor: pointer;
+  overflow: hidden;
+  background: var(--rosewood);
 }
 
-.closet-card-banner.ladies {
-  background: linear-gradient(135deg, #6e3b49 0%, #9a5a6c 100%);
+.closet-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  z-index: 0;
 }
 
-.closet-card-banner.girls {
-  background: linear-gradient(135deg, #4c6455 0%, #7b9483 100%);
+.closet-banner-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(22, 14, 17, 0.45) 0%, rgba(22, 14, 17, 0.18) 48%, rgba(22, 14, 17, 0.78) 100%);
 }
 
-.closet-card-banner.teens {
-  background: linear-gradient(135deg, #845926 0%, #b58650 100%);
+.closet-banner-top,
+.closet-banner-occasion {
+  position: relative;
+  z-index: 2;
 }
 
 .closet-banner-top {

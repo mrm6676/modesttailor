@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,7 +64,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,10 +74,13 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.model.AiCuratedOutfit
 import com.example.data.model.SavedOutfit
+import com.example.ui.theme.EditorialScrimBottom
+import com.example.ui.theme.EditorialScrimTop
 import com.example.ui.viewmodel.DataUiState
 import com.example.util.ClosetSearchHelper
 import com.example.util.ClosetSearchHelper.deriveStyleTags
 import com.example.util.ClosetSearchHelper.matchesClosetFilter
+import com.example.util.OutfitDesignArtworkHelper
 import com.example.util.OutfitShareHelper.toShareableOutfit
 
 private val MY_CLOSET_FILTERS = listOf("All", "Favorites", "Ladies", "Girls", "Teens")
@@ -515,17 +521,7 @@ private fun ClosetOutfitGridCard(
     onDelete: () -> Unit
 ) {
     val derivedTags = remember(outfit) { outfit.deriveStyleTags().take(2) }
-    val headerBrush = when {
-        outfit.audience.contains("Girls", ignoreCase = true) -> Brush.linearGradient(
-            colors = listOf(Color(0xFF4C6455), Color(0xFF7B9483))
-        )
-        outfit.audience.contains("Teens", ignoreCase = true) -> Brush.linearGradient(
-            colors = listOf(Color(0xFF845926), Color(0xFFB58650))
-        )
-        else -> Brush.linearGradient(
-            colors = listOf(Color(0xFF6E3B49), Color(0xFF9A5A6C))
-        )
-    }
+    val designImageRes = remember(outfit) { OutfitDesignArtworkHelper.resolveOutfitImage(outfit) }
 
     Card(
         onClick = onClick,
@@ -539,28 +535,46 @@ private fun ClosetOutfitGridCard(
             .testTag("saved_outfit_card_${outfit.id}")
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Editorial Gradient Header Banner
+            // Editorial Design Artwork Banner
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(82.dp)
-                    .background(headerBrush)
-                    .padding(10.dp)
+                    .height(134.dp)
             ) {
-                Surface(
-                    color = Color.White.copy(alpha = 0.22f),
-                    shape = CircleShape,
-                    modifier = Modifier.align(Alignment.TopStart)
+                Image(
+                    painter = painterResource(id = designImageRes),
+                    contentDescription = "${outfit.title} — ${stringResource(R.string.cd_outfit_design_preview)}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(EditorialScrimTop, EditorialScrimBottom)
+                            )
+                        )
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
                 ) {
-                    Text(
-                        text = outfit.audience,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                    )
-                }
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.42f),
+                        shape = CircleShape,
+                        modifier = Modifier.align(Alignment.TopStart)
+                    ) {
+                        Text(
+                            text = outfit.audience,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
 
                 IconButton(
                     onClick = onToggleFavorite,
@@ -596,6 +610,7 @@ private fun ClosetOutfitGridCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                }
                 }
             }
 

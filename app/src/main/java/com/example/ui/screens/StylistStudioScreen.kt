@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
@@ -58,6 +59,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -78,6 +80,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -98,8 +101,10 @@ import com.example.ui.theme.atelierSwatchColor
 import com.example.ui.viewmodel.DailyEditUiState
 import com.example.ui.viewmodel.DataUiState
 import com.example.ui.viewmodel.StylistUiState
+import com.example.util.OutfitDesignArtworkHelper
 import com.example.util.SizeMatchingHelper
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -142,7 +147,7 @@ fun StylistStudioScreen(
     val inStockItems = inventory.filter { it.inStock }
     val inStockCount = inStockItems.size
     val sizeMatchedCount = if (profile != null) {
-        SizeMatchingHelper.partitionInventoryBySize(inStockItems, profile).matchingItems.size
+        SizeMatchingHelper.partitionInventoryBySizeAndCoverage(inStockItems, profile).matchingItems.size
     } else {
         inStockCount
     }
@@ -533,19 +538,31 @@ private fun AtelierMastheadSection(
             }
         }
 
+        val matchRatio = if (inStockCount > 0) {
+            (sizeMatchedCount.toFloat() / inStockCount.toFloat()).coerceIn(0f, 1f)
+        } else {
+            0f
+        }
+        val matchPercent = if (inStockCount > 0) (matchRatio * 100f).roundToInt() else 0
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             AtelierMetricPill(
                 icon = Icons.Default.Checkroom,
                 label = stringResource(R.string.atelier_nav_inventory_pill),
-                value = if (inStockCount > 0) "$sizeMatchedCount/$inStockCount fit" else "Empty rack",
+                value = if (inStockCount > 0) "$sizeMatchedCount/$inStockCount fit & coverage" else "Empty rack",
                 containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                progress = if (inStockCount > 0) matchRatio else null,
+                progressPercent = if (inStockCount > 0) matchPercent else null,
                 onClick = onNavigateToInventory,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .testTag("masthead_inventory_shortcut")
             )
             AtelierMetricPill(
@@ -557,6 +574,7 @@ private fun AtelierMastheadSection(
                 onClick = onNavigateToCloset,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .testTag("masthead_closet_shortcut")
             )
         }
@@ -570,6 +588,8 @@ private fun AtelierMetricPill(
     value: String,
     containerColor: Color,
     contentColor: Color,
+    progress: Float? = null,
+    progressPercent: Int? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -579,29 +599,77 @@ private fun AtelierMetricPill(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.minimumInteractiveComponentSize()
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = contentColor,
-                modifier = Modifier.size(18.dp)
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = contentColor.copy(alpha = 0.8f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = contentColor,
+                    modifier = Modifier.size(18.dp)
                 )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = contentColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = contentColor.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (progressPercent != null) {
+                            Surface(
+                                color = contentColor.copy(alpha = 0.14f),
+                                shape = CircleShape
+                            ) {
+                                Text(
+                                    text = "$progressPercent%",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = contentColor,
+                                    modifier = Modifier
+                                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                                        .testTag("local_boutique_stock_percent")
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = contentColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            if (progress != null) {
+                val animatedProgress by animateFloatAsState(
+                    targetValue = progress.coerceIn(0f, 1f),
+                    label = "stockMatchProgress"
+                )
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = contentColor.copy(alpha = 0.16f),
+                    strokeCap = StrokeCap.Round,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(CircleShape)
+                        .testTag("local_boutique_stock_progress")
                 )
             }
         }
@@ -1230,32 +1298,57 @@ private fun CuratedOutfitCard(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            val designImageRes = OutfitDesignArtworkHelper.resolveOutfitImage(outfit)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(196.dp)
+                    .clip(MaterialTheme.shapes.large)
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = CircleShape
+                Image(
+                    painter = painterResource(id = designImageRes),
+                    contentDescription = "${outfit.title} — ${stringResource(R.string.cd_outfit_design_preview)}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(EditorialScrimTop, EditorialScrimBottom.copy(alpha = 0.45f))
+                            )
+                        )
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "${outfit.audience} • ${outfit.occasion}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
-                    )
-                }
-                Surface(
-                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f),
-                    shape = CircleShape
-                ) {
-                    Text(
-                        text = "Look 0${index + 1}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.94f),
+                        shape = CircleShape
+                    ) {
+                        Text(
+                            text = "${outfit.audience} • ${outfit.occasion}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                        )
+                    }
+                    Surface(
+                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.94f),
+                        shape = CircleShape
+                    ) {
+                        Text(
+                            text = "Look 0${index + 1}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
 

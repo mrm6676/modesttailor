@@ -26,6 +26,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -133,6 +134,7 @@ class TailorAiService {
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
                 responseSchema = outfitSchema
+                maxOutputTokens = 1400
                 thinkingConfig = thinkingConfig {
                     thinkingLevel = ThinkingLevel.LOW
                 }
@@ -140,12 +142,36 @@ class TailorAiService {
         )
     }
 
+    private val fastRecommendationModel by lazy {
+        Firebase.ai.generativeModel(
+            modelName = FAST_MODEL_NAME,
+            generationConfig = generationConfig {
+                responseMimeType = "application/json"
+                responseSchema = outfitSchema
+                maxOutputTokens = 1400
+            }
+        )
+    }
+
+    // Use ultra-fast Flash-Lite without thinking overhead for automatic startup Daily Edit curation
     private val dailyEditModel by lazy {
+        Firebase.ai.generativeModel(
+            modelName = FAST_MODEL_NAME,
+            generationConfig = generationConfig {
+                responseMimeType = "application/json"
+                responseSchema = dailyEditSchema
+                maxOutputTokens = 1024
+            }
+        )
+    }
+
+    private val dailyEditFallbackModel by lazy {
         Firebase.ai.generativeModel(
             modelName = MODEL_NAME,
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
                 responseSchema = dailyEditSchema
+                maxOutputTokens = 1024
                 thinkingConfig = thinkingConfig {
                     thinkingLevel = ThinkingLevel.LOW
                 }
@@ -159,6 +185,7 @@ class TailorAiService {
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
                 responseSchema = garmentScanSchema
+                maxOutputTokens = 800
                 thinkingConfig = thinkingConfig {
                     thinkingLevel = ThinkingLevel.LOW
                 }
@@ -166,12 +193,49 @@ class TailorAiService {
         )
     }
 
+    private val fastGarmentScanModel by lazy {
+        Firebase.ai.generativeModel(
+            modelName = FAST_MODEL_NAME,
+            generationConfig = generationConfig {
+                responseMimeType = "application/json"
+                responseSchema = garmentScanSchema
+                maxOutputTokens = 800
+            }
+        )
+    }
+
     private suspend fun generateJson(
-        model: GenerativeModel,
+        primaryModel: GenerativeModel,
+        primaryLabel: String,
+        fallbackModel: GenerativeModel,
+        fallbackLabel: String,
         promptContent: Content
     ): String = withContext(Dispatchers.IO) {
-        val response = withTimeout(AI_TIMEOUT_MS) {
-            model.generateContent(promptContent)
+        val startMs = System.currentTimeMillis()
+        val primaryResponse = try {
+            withTimeoutOrNull(PRIMARY_ATTEMPT_TIMEOUT_MS) {
+                primaryModel.generateContent(promptContent)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "$primaryLabel failed (${e.localizedMessage}); trying $fallbackLabel", e)
+            null
+        }
+
+        val response = if (primaryResponse != null) {
+            Log.d(TAG, "$primaryLabel responded in ${System.currentTimeMillis() - startMs}ms")
+            primaryResponse
+        } else {
+            Log.w(
+                TAG,
+                "Using fallback $fallbackLabel after ${System.currentTimeMillis() - startMs}ms"
+            )
+            withTimeout(FALLBACK_ATTEMPT_TIMEOUT_MS) {
+                fallbackModel.generateContent(promptContent)
+            }.also {
+                Log.d(TAG, "$fallbackLabel responded in ${System.currentTimeMillis() - startMs}ms total")
+            }
         }
         response.text?.takeIf { it.isNotBlank() }
             ?: throw IllegalStateException("Tailor AI returned an empty response.")
@@ -235,7 +299,10 @@ class TailorAiService {
 
         try {
             val jsonString = generateJson(
-                model = recommendationModel,
+                primaryModel = recommendationModel,
+                primaryLabel = MODEL_NAME,
+                fallbackModel = fastRecommendationModel,
+                fallbackLabel = FAST_MODEL_NAME,
                 promptContent = content { text(prompt) }
             )
 
@@ -267,51 +334,27 @@ class TailorAiService {
         dayOfWeek: String,
         recentFeedback: List<OutfitFeedback> = emptyList()
     ): AiDailyEditRecommendation {
-        val inventoryBlock = buildSizeFilteredInventoryBlock(profile, availableInventory)
+        val inventoryBlock = buildCompactDailyInventoryBlock(profile, availableInventory)
         val feedbackBlock = buildFeedbackLearningBlock(recentFeedback)
 
         val prompt = buildString {
-            appendLine("You are Modest Tailor AI curating the client's Daily Personalized Edit for $dayOfWeek ($dateDisplay).")
-            appendLine("Generate 2 cohesive, wearable modest outfits tailored specifically to the user's stored preferences, clothing sizes, and strict coverage charter.")
-            appendLine()
-            appendLine("=== STORED PREFERENCES & COVERAGE REQUIREMENTS ===")
-            appendLine("- Client Name: ${profile.displayName}")
-            appendLine("- Audience: ${profile.audience}")
-            appendLine("- Neckline Rule: ${profile.necklineRule}")
-            appendLine("- Sleeve Rule: ${profile.sleeveRule}")
-            appendLine("- Hemline Rule: ${profile.hemlineRule}")
-            appendLine("- Fit & Drape Rule: ${profile.fitRule}")
-            appendLine("- Hijab / Headscarf Styling: ${if (profile.hijabFriendly) "Required / Coordinated opaque wrap" else "Optional"}")
-            appendLine("- Stored Trend Vibes: ${profile.trendTags.joinToString(", ").ifBlank { "Contemporary Modest Elegance" }}")
-            appendLine("- Stored Color Palette: ${profile.favoriteColors.joinToString(", ").ifBlank { "Warm Neutrals" }}")
-            appendLine("- Local District: ${profile.cityOrArea}")
-            appendLine()
-            appendLine("=== SAVED CLOTHING SIZES & FIT PROFILE ===")
-            appendLine("- Tops & Outerwear Size: ${profile.topSize}")
-            appendLine("- Bottoms & Skirts Size: ${profile.bottomSize}")
-            appendLine("- Dress / Abaya Length: ${profile.dressAbayaLength}\"")
-            appendLine("- Girls / Teens Size: ${profile.girlsSize}")
+            appendLine("Curate a crisp 2-outfit Daily Modest Edit for $dayOfWeek ($dateDisplay) for ${profile.displayName}.")
+            appendLine("Charter: Audience=${profile.audience}; Neckline=${profile.necklineRule}; Sleeves=${profile.sleeveRule}; Hem=${profile.hemlineRule}; Fit=${profile.fitRule}; Hijab=${if (profile.hijabFriendly) "Coordinated opaque wrap" else "Optional"}.")
+            appendLine("Palette=${profile.favoriteColors.joinToString(", ").ifBlank { "Warm Neutrals" }}; Trends=${profile.trendTags.joinToString(", ").ifBlank { "Contemporary Modest Elegance" }}; Sizes=${profile.formattedSizeSummary()}; Area=${profile.cityOrArea}.")
             if (feedbackBlock.isNotBlank()) {
-                appendLine()
                 appendLine(feedbackBlock)
             }
-            appendLine()
-            appendLine("=== SIZE-FILTERED IN-STOCK LOCAL INVENTORY ===")
+            appendLine("Size-matched local stock:")
             appendLine(inventoryBlock)
-            appendLine()
-            appendLine("INSTRUCTIONS:")
-            appendLine("1. Tailor the mood to $dayOfWeek (balanced practical chic for weekdays, relaxed or celebratory polish for weekends/Fridays).")
-            appendLine("2. Prioritize the client's stored color palette and trend tags while strictly verifying 100% coverage compliance.")
-            appendLine("3. Pair ONLY size-matched in-stock local pieces (${profile.formattedSizeSummary()}) whenever present; exclude out-of-size local stock.")
-            appendLine("4. Keep each JSON text field crisp and editorial (1 to 2 sentences max).")
-            if (feedbackBlock.isNotBlank()) {
-                appendLine("5. Use the User Feedback Learning Signals above: emphasize silhouettes/trends similar to liked looks and avoid disliked combinations.")
-            }
+            appendLine("Rules: Match $dayOfWeek mood, pair ONLY listed size-matched items with exact names & boutique sources, verify 100% coverage compliance, and keep each JSON text field concise (1-2 sentences max).")
         }
 
         try {
             val jsonString = generateJson(
-                model = dailyEditModel,
+                primaryModel = dailyEditModel,
+                primaryLabel = FAST_MODEL_NAME,
+                fallbackModel = dailyEditFallbackModel,
+                fallbackLabel = MODEL_NAME,
                 promptContent = content { text(prompt) }
             )
             val root = JSONObject(jsonString)
@@ -393,7 +436,10 @@ class TailorAiService {
                 scaleBitmapSafely(bitmap, maxEdge = 1024)
             }
             val jsonString = generateJson(
-                model = garmentScanModel,
+                primaryModel = garmentScanModel,
+                primaryLabel = MODEL_NAME,
+                fallbackModel = fastGarmentScanModel,
+                fallbackLabel = FAST_MODEL_NAME,
                 promptContent = content {
                     image(scaledBitmap)
                     text(prompt)
@@ -459,6 +505,23 @@ class TailorAiService {
         }.trimEnd()
     }
 
+    internal fun buildCompactDailyInventoryBlock(
+        profile: StyleProfile,
+        availableInventory: List<InventoryItem>
+    ): String {
+        val inStockItems = availableInventory.filter { it.inStock }
+        if (inStockItems.isEmpty()) {
+            return "No local stock registered; suggest timeless modest staples for ${profile.formattedSizeSummary()}."
+        }
+        val filtered = SizeMatchingHelper.partitionInventoryBySize(inStockItems, profile)
+        if (filtered.matchingItems.isEmpty()) {
+            return "No in-stock items match ${profile.formattedSizeSummary()}; suggest wardrobe staples for those sizes."
+        }
+        return filtered.matchingItems.take(8).joinToString("\n") { item ->
+            "- ${item.name} [${item.audience}, ${item.color}, ${item.trendTag}] @ ${item.boutiqueName}"
+        }
+    }
+
     internal fun buildSizeFilteredInventoryBlock(
         profile: StyleProfile,
         availableInventory: List<InventoryItem>
@@ -486,6 +549,8 @@ class TailorAiService {
     private companion object {
         const val TAG = "TailorAiService"
         const val MODEL_NAME = "gemini-3.8-flash"
-        const val AI_TIMEOUT_MS = 60_000L
+        const val FAST_MODEL_NAME = "gemini-3.5-flash-lite"
+        const val PRIMARY_ATTEMPT_TIMEOUT_MS = 28_000L
+        const val FALLBACK_ATTEMPT_TIMEOUT_MS = 30_000L
     }
 }

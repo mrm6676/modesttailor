@@ -68,7 +68,7 @@
     <string name="atelier_capsule_girls_title">Girls &amp; Teens Capsule</string>
     <string name="atelier_capsule_girls_sub">Breathable cotton tiers &amp; modest denim</string>
     <string name="atelier_composer_eyebrow">BESPOKE COMMISSION</string>
-    <string name="atelier_nav_inventory_pill">Local Rack</string>
+    <string name="atelier_nav_inventory_pill">Local Boutique Stock</string>
     <string name="atelier_nav_closet_pill">Saved Looks</string>
     <string name="atelier_quick_actions_title">Quick Actions</string>
     <string name="quick_action_daily">View Daily Recommendation</string>
@@ -153,4 +153,5 @@
     <string name="cd_favorite_toggle">Toggle favorite ensemble</string>
     <string name="cd_delete_item">Delete item</string>
     <string name="cd_sign_out">Sign out of account</string>
+    <string name="cd_outfit_design_preview">Generated modest outfit design preview</string>
 </resources>

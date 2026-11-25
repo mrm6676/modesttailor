@@ -238,6 +238,10 @@ class ExampleRobolectricTest {
     assertTrue(aiPromptBlock.contains("SIZE-MATCHED IN-STOCK PIECES"))
     assertTrue(aiPromptBlock.contains("EXCLUDED (OUT OF SIZE RANGE"))
     assertTrue(aiPromptBlock.contains("Silk Ivory Bishop-Sleeve Mock-Neck Blouse [XS - XL]"))
+
+    val compactDailyBlock = TailorAiService().buildCompactDailyInventoryBlock(xxlTallLadiesProfile, starter)
+    assertTrue(compactDailyBlock.contains("Sage Belted Longline Linen Trench Coat"))
+    assertFalse(compactDailyBlock.contains("Silk Ivory Bishop-Sleeve Mock-Neck Blouse"))
   }
 
   @Test
@@ -301,6 +305,29 @@ class ExampleRobolectricTest {
     assertTrue(callbackFired)
     assertEquals("XL", updatedDraft?.topSize)
     assertEquals("Downtown", updatedDraft?.cityOrArea)
+  }
+
+  @Test
+  fun `size and coverage partition accurately reflects hijab and hemline requirements`() {
+    val starter = FashionCatalogConstants.starterBoutiqueItems("u1", "Oakbrook")
+    val strictFloorNoHijab = StyleProfile(
+      userId = "u1",
+      audience = "Ladies",
+      hemlineRule = "Maxi / Floor-Length",
+      hijabFriendly = false,
+      topSize = "M",
+      bottomSize = "M",
+      dressAbayaLength = "54"
+    )
+    val result = SizeMatchingHelper.partitionInventoryBySizeAndCoverage(starter, strictFloorNoHijab)
+    val matchedNames = result.matchingItems.map { it.name }
+    val excludedNames = result.excludedItems.map { it.name }
+
+    // Floor-length Ladies skirt, blouse, and abaya match; hijab & calf-skimming duster & girls/teens excluded
+    assertTrue(matchedNames.any { it.contains("Rosewood Sunburst Pleated Satin Maxi Skirt") })
+    assertTrue(matchedNames.any { it.contains("Espresso Satin-Trimmed Open Abaya") })
+    assertTrue(excludedNames.any { it.contains("Champagne Modal Crinkle Hijab") })
+    assertTrue(excludedNames.any { it.contains("Sage Belted Longline Linen Trench") })
   }
 }
 
